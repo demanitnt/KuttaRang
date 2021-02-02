@@ -1,0 +1,59 @@
+.deck .card
+{
+border: solid 1px #aaa;
+border-radius: 9px;
+width: 95px;
+height: 150px;
+float:left;
+background-color: white;
+padding: 3px 3px 3px 3px;
+margin: 5px;
+}
+
+.card2
+{
+width: 50px;
+padding: 10px;
+border: solid 1px #808080;
+background-color: white;
+display: inline-block;
+border-radius: 10px;
+font-size: 22px;
+text-align: center;
+margin: 3px;
+border:solid 3px;
+}
+
+.card .value{
+font-size:15pt;
+font-family: sans-serif;
+}
+
+.card .suit
+{
+background-image: url('https://www.thatsoftwaredude.com/images/post/0f631eeb-6c4a-4bfd-9f86-e0a08ae8584b.png');
+height: 100px;
+width: 90px;
+}
+
+.card .diamonds
+{
+background-position-y: 100px;
+}
+
+styledimg {
+    background-image: url("https://www.google.com/imgres?imgurl=https%3A%2F%2Fimage.shutterstock.com%2Fimage-vector%2Fspades-icon-trendy-flat-style-260nw-675381103.jpg&imgrefurl=https%3A%2F%2Fwww.shutterstock.com%2Fsearch%2Fspade&tbnid=yRmtKdKsEECn3M&vet=12ahUKEwiA7qOp9JHuAhXN_IUKHXdqAbEQMygAegUIARC5AQ..i&docid=222NmrKln2h6OM&w=260&h=280&q=spade%20images%20icon&ved=2ahUKEwiA7qOp9JHuAhXN_IUKHXdqAbEQMygAegUIARC5AQ");
+    background-repeat: no-repeat;
+    width: 10px;
+    height: 20px;
+    }
+.card .hearts
+{
+background-position-x: 90px;
+}
+
+.card .clubs
+{
+background-position-x:90px;
+background-position-y:100px;
+}
