@@ -17,7 +17,7 @@ var connectionOptions = {
   transports: ["websocket"],
 };
 const socket = socketIOClient(ENDPOINT, connectionOptions);
-
+let RemovedClickedCard=null;
 class Playarea extends Component {
   constructor(props) {
     super(props);
@@ -26,14 +26,22 @@ class Playarea extends Component {
       Player2: null,
       Player3: null,
       Player4: null,
-      active: null,
-      Activecomingbac: [],
+      SID1: null,
+      SID2: null,
+      SID3: null,
+      SID4: null,
+      Activecomingbac1: [],
+      Activecomingbac2: [],
+      Activecomingbac3: [],
+      Activecomingbac4: [],
       showPlayarea: false,
       code: null,
       user: auth().currentUser,
       roomid: null,
-      currentID: null,
+      currentID: [],
       message: null,
+      Winner: null,
+      
       
       receivedCards: [],
 
@@ -46,16 +54,24 @@ class Playarea extends Component {
     // this.callCard= this.callCard.bind(this);
   }
 
-  
+ 
 
   handlecall(event) {
     this.setState({ roomid: event.target.value }); 
   }
 
-   async activecard(c)
-  {        socket.emit("ActiveCardGoing", c);
-    await socket.on("Activecardback", c=>{  this.setState({Activecomingbac: c})});
-      
+    activecard(c)
+ { RemovedClickedCard=c;
+   console.log("This is removeClickedCard", RemovedClickedCard)
+          socket.emit("ActiveCardGoing", c, this.state.currentID);
+          console.log("This is socketid going to server", this.state.currentID )
+          // let filteredCards=[];
+          // THIS REMOVES THE CLICKED CARD FROM PACK
+          this.state.receivedCards.splice(this.state.receivedCards.indexOf(RemovedClickedCard),1)
+          // this.state.receivedCards=this.state.receivedCards.filter((cd)=>((cd.name !==RemovedClickedCard.name) && (parseInt(cd.value)  !== parseInt(RemovedClickedCard.value))))
+      // this.state.receivedCards=filteredCards    
+    //  console.log("This is from server socketid", this.state.Activecomingbac1)
+    //  ,"and ",this.state.Activecomingbac2,"and ",this.state.Activecomingbac3,"and ",this.state.Activecomingbac4) 
        
        
      
@@ -69,6 +85,30 @@ class Playarea extends Component {
       id: null
     });
     // socket.on("Activecardback", c=>{
+
+      socket.on("Winnerback",winner=>
+      {this.setState({Winner:winner})})
+      socket.on("Activecardback", (c, currentID)=>{
+        console.log("This is socketid coming from server", c,currentID )
+        if(currentID===1 || currentID==="[]"){
+          currentID=1
+        
+             this.setState({Activecomingbac1:c}) }
+             if(currentID===2)
+             this.setState({Activecomingbac2:c})
+             if(currentID===3)
+             this.setState({Activecomingbac3:c})
+             if(currentID===4)
+             this.setState({Activecomingbac4:c})
+            if(this.Activecomingbac1!==null && this.Activecomingbac2!==null &&this.Activecomingbac3!==null && this.Activecomingbac4!==null ){
+              console.log("This is winnerdecission area")
+              console.log("This is clicked card 4", this.Activecomingbac1!==null, this.Activecomingbac2,this.Activecomingbac3, this.Activecomingbac4 )
+            socket.emit("WinnerDecission", {ACB1:this.state.Activecomingbac1,ACB2:this.state.Activecomingbac2,ACB3:this.state.Activecomingbac3,ACB4: this.state.Activecomingbac4})
+            }                              
+            });
+            if(this.Activecomingbac1!==null && this.Activecomingbac2!==null &&this.Activecomingbac3!==null && this.Activecomingbac4!==null )
+   {socket.on("Winnerback",winner=>
+   {this.setState({Winner:winner})})}
     //   console.log("This is active card comming bacd from server",c)
     //    this.setState({Activecomingbac: c})});
     
@@ -116,11 +156,15 @@ class Playarea extends Component {
     //   this.setState({Activecomingbac: d})});
   }
 
-  async createRoom() {
+  async createRoom()
+  {
     var RandomV = Math.floor(Math.random() * 100000) + 1;
 
-    await this.setState({ code: RandomV });
-
+    await this.setState({ code: RandomV, currentID:1 });
+    
+    if(this.Activecomingbac1!==null && this.Activecomingbac2!==null &&this.Activecomingbac3!==null && this.Activecomingbac4!==null )
+   {socket.on("Winnerback",winner=>
+   {this.setState({Winner:winner})})}
 
     socket.emit("RequestCreateRoom", {
       code: this.state.code,
@@ -143,6 +187,24 @@ class Playarea extends Component {
       //   console.log("This is active card comming bacd from server",d)
       //    this.setState({Activecomingbac: d})});
       //    console.log("Tghis is from server on click",this.state.Activecomingbac)
+
+      socket.on("Activecardback", (c, currentID)=>{
+       
+        console.log("This is socketid coming from server", c,currentID )
+        if(currentID===1 || currentID===""){
+          // currentID=1
+        
+             this.setState({Activecomingbac1:c}) }
+             if(currentID===2)
+             this.setState({Activecomingbac2:c})
+             if(currentID===3)
+             this.setState({Activecomingbac3:c})
+             if(currentID===4)
+             this.setState({Activecomingbac4:c})
+            
+            
+            
+            });
 
       // socket.on("Activecardback", c=>{
       //   console.log("This is active card comming bacd from server",c) 
@@ -197,11 +259,18 @@ class Playarea extends Component {
     var player2Name = this.state.Player2 ? this.state.Player2.useremail : "";
     var player3Name = this.state.Player3 ? this.state.Player3.useremail : "";
     var player4Name = this.state.Player4 ? this.state.Player4.useremail : "";
+    
      
 
     // console.log("Playeractive", player1Active+player2Active+player3Active+player4Active)
-   
-    const cardsItems = this.state.receivedCards.map((c) =>
+  //  let cardsItems=null;
+  //   if (RemovedClickedCard!=null){
+  //     console.log("This is filtercard section",RemovedClickedCard)
+  //     // setTodo(todo.filter((c) => c.id !== parseInt(task.target.value)));
+  //     let filteredCards=[];
+  //     filteredCards=this.state.receivedCards.filter((c)=>c.name !=RemovedClickedCard.name && c.value  != RemovedClickedCard.value)
+  //     console.log("This is after filter",filteredCards) 
+     const cardsItems = this.state.receivedCards.map((c) =>
             <div className="deck" onClick={()=>this.activecard(c)}> 
             <div class="card" >
                 <div class="value">{c.value}
@@ -210,6 +279,21 @@ class Playarea extends Component {
                 </div> 
             </div></div>
         );
+
+
+
+  //  }
+  //  else{
+  //    cardsItems = this.state.receivedCards.map((c) =>
+  //           <div className="deck" onClick={()=>this.activecard(c)}> 
+  //           <div class="card" >
+  //               <div class="value">{c.value}
+  //               </div>
+  //               <div className={c.name}> 
+  //               </div> 
+  //           </div></div>
+  //       );
+  //  }
 
     // let card1=   this.state.Player1.map((card) =><div className="deck"><div class="card" >
     // <div class="value" >{card.value}
@@ -245,7 +329,7 @@ class Playarea extends Component {
             <div className="home">
               <h4 className="playarea-header">Welcome to Rang Game Lobby</h4>
               <h4>{this.state.code}</h4>
-              <button onClick={this.createRoom}> Create New Room{this.state.code}</button>
+              <button onClick={this.createRoom}> Create New Room{this.state.code}</button> 
               <p>
                 {" "}
                 <button onClick={this.submitdata}> Enter Room ID</button>
@@ -300,6 +384,7 @@ class Playarea extends Component {
               <button type="button" class=" mb-3 btn btn-success">
                 Players online: <span class="badge badge-light"> </span>
               </button>
+              <div>The Winner is {this.state.Winner}</div> 
             </div>
 
             <br />
@@ -319,11 +404,12 @@ class Playarea extends Component {
               <div class="deck">
                 <div class="card">
                   <div class="value">
-                    {this.state.Activecomingbac != null  ? this.state.Activecomingbac.value : ""}
+                    {this.state.Activecomingbac1 != null   ? this.state.Activecomingbac1.value : ""}
+                   
                   </div>
                   <div
                     className={
-                      this.state.Activecomingbac != null  ? this.state.Activecomingbac.name : ""
+                      this.state.Activecomingbac1 != null   ? this.state.Activecomingbac1.name : ""
                     }
                   ></div>
                 </div>
@@ -347,11 +433,11 @@ class Playarea extends Component {
             <div class="deck">
                 <div class="card">
                   <div class="value">
-                    {this.state.Activecomingbac != null  ? this.state.Activecomingbac.value : ""}
+                    {this.state.Activecomingbac2 != null   ? this.state.Activecomingbac2.value : ""}
                   </div>
                   <div
                     className={
-                      this.state.Activecomingbac != null  ? this.state.Activecomingbac.name : ""
+                      this.state.Activecomingbac2 != null   ? this.state.Activecomingbac2.name : ""
                     }
                   ></div>
                 </div>
@@ -374,11 +460,11 @@ class Playarea extends Component {
               <div class="deck">
                 <div class="card">
                   <div class="value">
-                    {this.state.Activecomingbac != null  ? this.state.Activecomingbac.value : ""}
+                    {this.state.Activecomingbac3 != null   ? this.state.Activecomingbac3.value : ""}
                   </div>
                   <div
                     className={
-                      this.state.Activecomingbac != null  ? this.state.Activecomingbac.name : ""
+                      this.state.Activecomingbac3 != null   ? this.state.Activecomingbac3.name : ""
                     }
                   ></div>
                 </div>
@@ -400,11 +486,11 @@ class Playarea extends Component {
               <div class="deck">
                 <div class="card">
                   <div class="value">
-                    {this.state.Activecomingbac != null  ? this.state.Activecomingbac.value : ""}
+                    {this.state.Activecomingbac4 != null   ? this.state.Activecomingbac4.value : ""}
                   </div>
                   <div
                     className={
-                      this.state.Activecomingbac != null  ? this.state.Activecomingbac.name : ""
+                      this.state.Activecomingbac4 != null   ? this.state.Activecomingbac4.name : ""
                     }
                   ></div>
                 </div>
